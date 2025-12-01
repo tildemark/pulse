@@ -35,7 +35,7 @@ The public instance is provided "as-is" until the server costs exceed my budget.
 1.  Clone the repository:
 
     ```bash
-    git clone https://github.com/your-username/pulse.git
+    git clone https://github.com/tildemark/pulse.git
     cd pulse
     ```
 
@@ -49,8 +49,8 @@ The public instance is provided "as-is" until the server costs exceed my budget.
 
     ```env
     DOMAIN=https://counter.sanchez.ph
-    GITHUB_URL=https://github.com/your-username/pulse
-    ADMIN_USER=sanchez
+    GITHUB_URL=https://github.com/tildemark/pulse
+    ADMIN_USER=admin
     ADMIN_PASS=SuperSecurePassword123!
     ```
 
