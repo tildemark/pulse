@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const DOMAIN = process.env.DOMAIN || 'http://localhost:3000';
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
-const GITHUB_URL = process.env.GITHUB_URL || 'https://github.com/your-username/pulse'; // Add your repo here later
+const GITHUB_URL = process.env.GITHUB_URL || 'https://github.com/tildemark/pulse'; // Add your repo here later
 
 // Admin Credentials
 const ADMIN_USER = process.env.ADMIN_USER || 'admin';
