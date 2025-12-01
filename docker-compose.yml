@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  pulse:
+    build: .
+    container_name: puls-engine
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+      # These now pull from your server's environment or .env file
+      - DOMAIN=${DOMAIN}
+      - GITHUB_URL=${GITHUB_URL}
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASS=${ADMIN_PASS}
+      - REDIS_HOST=redis
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "3011:3000"
+    networks:
+      - net
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+    container_name: pulse-redis
+    restart: unless-stopped
+    networks:
+      - net
+
+networks:
+  net:
+    external: true
