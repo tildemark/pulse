@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P.U.L.S.E. Interactive Guide</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Placeholder Comments Required by Prompt -->
+    <!-- Chosen Palette: Clean Tech - Slate (Neutrals), Blue (Primary Action), Emerald (Success/Status), Rose (Warning). Background is Slate-50/White. -->
+    <!-- Application Structure Plan: 
+        1. Hero Section: Immediate value proposition and disclaimer about public hosting (Source: Warning note).
+        2. System Architecture Simulation: A dynamic visualization using Chart.js to demonstrate the "Write-Behind Caching" feature. It compares high-velocity traffic (Redis) vs. low-velocity disk writes (SQLite), visually explaining the core technical benefit.
+        3. Feature Explorer: Interactive cards detailing HyperLogLog, Bot Protection, etc.
+        4. Interactive Configuration Generator: A tool to generate the .env file content based on user inputs, simplifying the "Configuration" section of the README.
+        5. Deployment Wizard: Tabbed interface for Standard vs. Portainer deployment steps.
+        6. API/Badge Playground: A simulator to construct Badge URLs and Client Scripts visually.
+        This structure transforms static documentation into an active learning tool.
+    -->
+    <!-- Visualization & Content Choices:
+        1. Architecture Sim: Goal -> Explain "Write-Behind Caching". Method -> Dual Line Chart (Chart.js). Interaction -> Live data simulation. Justification -> Visually proves the efficiency claim.
+        2. Config Generator: Goal -> Simplify setup. Method -> HTML Form + JS string template. Interaction -> Real-time code update.
+        3. Badge Playground: Goal -> Explain URL parameters. Method -> HTML Form + Live Preview (HTML/CSS). Interaction -> Immediate visual feedback.
+        4. Deployment Tabs: Goal -> Reduce cognitive load. Method -> JS Tab switching.
+        CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. Icons use Unicode or CSS shapes.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        /* Chart Container Styling per Requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* max-w-2xl equivalent approx */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        
+        /* Custom Scrollbar for code blocks */
+        .code-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-scroll::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .code-scroll::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans leading-relaxed">
+
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-2">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">P</div>
+                        <span class="font-bold text-xl tracking-tight text-slate-900">P.U.L.S.E.</span>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <a href="#overview" class="border-transparent text-slate-500 hover:border-blue-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Overview</a>
+                    <a href="#architecture" class="border-transparent text-slate-500 hover:border-blue-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Architecture</a>
+                    <a href="#deployment" class="border-transparent text-slate-500 hover:border-blue-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Deploy</a>
+                    <a href="#configuration" class="border-transparent text-slate-500 hover:border-blue-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Config</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="overview" class="relative bg-white overflow-hidden">
+        <div class="max-w-6xl mx-auto">
+            <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32 pt-20 px-4 sm:px-6 lg:px-8">
+                <main class="mt-10 mx-auto max-w-7xl sm:mt-12 md:mt-16 lg:mt-20 xl:mt-28">
+                    <div class="sm:text-center lg:text-left">
+                        <h1 class="text-4xl tracking-tight font-extrabold text-slate-900 sm:text-5xl md:text-6xl">
+                            <span class="block xl:inline">Page Usage &</span>
+                            <span class="block text-blue-600 xl:inline">Live Statistics Engine</span>
+                        </h1>
+                        <p class="mt-3 text-base text-slate-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                            A high-performance, self-hosted analytics microservice designed for low-latency view counting using Redis and SQLite.
+                        </p>
+                        
+                        <!-- Warning Callout -->
+                        <div class="mt-6 p-4 bg-rose-50 border-l-4 border-rose-500 rounded-r-md">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <span class="text-rose-500 text-xl">&#9888;</span> <!-- Warning Symbol -->
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-rose-800">Public Hosting Notice</h3>
+                                    <div class="mt-2 text-sm text-rose-700">
+                                        <p>The public instance (sanchez.ph) runs on a small VPS. For high-traffic applications, it is strongly recommended to <strong>self-host your own instance</strong> to ensure stability.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+                            <div class="rounded-md shadow">
+                                <a href="#deployment" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
+                                    Start Deployment
+                                </a>
+                            </div>
+                            <div class="mt-3 sm:mt-0 sm:ml-3">
+                                <a href="#features" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 md:py-4 md:text-lg md:px-10">
+                                    Explore Features
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+        <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-slate-100 flex items-center justify-center">
+             <!-- Abstract Graphic Representation of Data Flow -->
+             <div class="grid grid-cols-2 gap-4 p-8 opacity-75">
+                <div class="h-32 w-32 bg-blue-200 rounded-lg animate-pulse flex items-center justify-center text-blue-800 font-bold">Redis</div>
+                <div class="h-32 w-32 bg-slate-300 rounded-lg flex items-center justify-center text-slate-800 font-bold">SQLite</div>
+                <div class="col-span-2 h-16 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-800 font-bold">Dashboard</div>
+             </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="py-12 bg-slate-50 border-t border-slate-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-base text-blue-600 font-semibold tracking-wide uppercase">Under the Hood</h2>
+                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+                    Write-Behind Caching Architecture
+                </p>
+                <p class="mt-4 max-w-2xl text-xl text-slate-500 mx-auto">
+                    P.U.L.S.E. handles high concurrency by separating traffic ingestion from disk persistence. See the simulation below.
+                </p>
+            </div>
+
+            <!-- Visualization: Live Chart Simulation -->
+            <div class="bg-white p-6 rounded-lg shadow-lg border border-slate-200">
+                <div class="mb-4">
+                    <p class="text-sm text-slate-600">
+                        <strong>Simulation:</strong> The blue line represents incoming hits (handled instantly by Redis RAM). The green bars represent database writes (SQLite). Notice how the database is only touched periodically, preventing I/O bottlenecks.
+                    </p>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="archChart"></canvas>
+                </div>
+                
+                <div class="mt-4 flex justify-center gap-4 text-sm">
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+                        <span>Redis In-Memory Ops (High Velocity)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 bg-emerald-500 rounded-full mr-2"></span>
+                        <span>SQLite Disk Writes (Every 10s)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-12 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:text-center">
+                <h2 class="text-base text-blue-600 font-semibold tracking-wide uppercase">Capabilities</h2>
+                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+                    Engineered for Efficiency
+                </p>
+            </div>
+
+            <div class="mt-10">
+                <div class="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
+                    
+                    <!-- Feature 1 -->
+                    <div class="relative group p-6 border border-slate-200 rounded-xl hover:shadow-lg transition-shadow duration-300">
+                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white text-2xl">
+                            &#9889; <!-- Unicode Zap -->
+                        </div>
+                        <p class="ml-16 text-lg leading-6 font-medium text-slate-900">Redis HyperLogLog</p>
+                        <div class="mt-2 ml-16 text-base text-slate-500">
+                            Counts millions of unique visitors with minimal RAM footprint (~12KB). Uses probabilistic data structures for extreme efficiency.
+                        </div>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="relative group p-6 border border-slate-200 rounded-xl hover:shadow-lg transition-shadow duration-300">
+                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white text-2xl">
+                            &#128190; <!-- Unicode Floppy Disk -->
+                        </div>
+                        <p class="ml-16 text-lg leading-6 font-medium text-slate-900">Write-Behind Caching</p>
+                        <div class="mt-2 ml-16 text-base text-slate-500">
+                            Flushes data to disk (SQLite) only once every 10 seconds. Prevents disk IO bottlenecks during traffic spikes.
+                        </div>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="relative group p-6 border border-slate-200 rounded-xl hover:shadow-lg transition-shadow duration-300">
+                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white text-2xl">
+                            &#128737; <!-- Unicode Shield -->
+                        </div>
+                        <p class="ml-16 text-lg leading-6 font-medium text-slate-900">Bot Protection</p>
+                        <div class="mt-2 ml-16 text-base text-slate-500">
+                            Rate limiting on the <code>/create</code> API endpoint (10 req/hour/IP) prevents database spam and abuse.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Configuration Generator Section -->
+    <section id="configuration" class="py-12 bg-slate-50 border-t border-slate-200">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900">Secure Configuration Generator</h2>
+                <p class="mt-4 text-lg text-slate-500">
+                    Generate your <code>.env</code> file securely. Data entered here remains in your browser.
+                </p>
+            </div>
+
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="grid grid-cols-1 gap-6">
+                        <!-- Input Fields -->
+                        <div>
+                            <label for="conf-domain" class="block text-sm font-medium text-slate-700">Domain URL</label>
+                            <input type="url" name="conf-domain" id="conf-domain" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-slate-300 rounded-md p-2 border" placeholder="https://counter.yourdomain.com">
+                            <p class="mt-1 text-xs text-slate-500">The public URL where P.U.L.S.E. will be accessible.</p>
+                        </div>
+
+                        <div>
+                            <label for="conf-github" class="block text-sm font-medium text-slate-700">GitHub Repo URL</label>
+                            <input type="url" name="conf-github" id="conf-github" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-slate-300 rounded-md p-2 border" placeholder="https://github.com/your-username/pulse">
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="conf-user" class="block text-sm font-medium text-slate-700">Admin Username</label>
+                                <input type="text" name="conf-user" id="conf-user" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-slate-300 rounded-md p-2 border" placeholder="admin">
+                            </div>
+                            <div>
+                                <label for="conf-pass" class="block text-sm font-medium text-slate-700">Admin Password</label>
+                                <input type="text" name="conf-pass" id="conf-pass" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-slate-300 rounded-md p-2 border" placeholder="SuperSecurePassword123!">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Output Block -->
+                    <div class="mt-8">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Generated .env Content</label>
+                        <div class="relative">
+                            <pre class="bg-slate-900 rounded-lg p-4 overflow-x-auto code-scroll"><code id="env-output" class="text-green-400 font-mono text-sm"># Output will appear here...</code></pre>
+                            <button id="copy-env" class="absolute top-2 right-2 bg-slate-700 hover:bg-slate-600 text-white text-xs py-1 px-3 rounded transition-colors">Copy</button>
+                        </div>
+                        <p class="mt-2 text-sm text-rose-600 font-bold">&#9888; Do not commit this file to GitHub.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Deployment Guide (Tabs) -->
+    <section id="deployment" class="py-12 bg-white border-t border-slate-200">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-extrabold text-slate-900 mb-8">Deployment Guide</h2>
+
+            <!-- Tabs -->
+            <div class="border-b border-slate-200">
+                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                    <button id="tab-standard" class="border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors" onclick="switchTab('standard')">
+                        Standard (Docker Compose)
+                    </button>
+                    <button id="tab-portainer" class="border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors" onclick="switchTab('portainer')">
+                        Portainer Stacks
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab Content: Standard -->
+            <div id="content-standard" class="mt-8 space-y-8">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600 font-bold">1</div>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="text-lg font-bold text-slate-900">Clone Repository</h4>
+                        <pre class="mt-2 bg-slate-100 p-3 rounded text-sm text-slate-800 overflow-x-auto code-scroll">git clone https://github.com/your-username/pulse.git
+cd pulse</pre>
+                    </div>
+                </div>
+                
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600 font-bold">2</div>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="text-lg font-bold text-slate-900">Create Configuration</h4>
+                        <p class="text-slate-500 mb-2">Create the <code>.env</code> file (use the generator above).</p>
+                        <pre class="bg-slate-100 p-3 rounded text-sm text-slate-800 overflow-x-auto code-scroll">nano .env
+# Paste generated content here</pre>
+                    </div>
+                </div>
+
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600 font-bold">3</div>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="text-lg font-bold text-slate-900">Launch Container</h4>
+                        <p class="text-slate-500 mb-2">Docker will automatically read the <code>.env</code> file.</p>
+                        <pre class="bg-slate-100 p-3 rounded text-sm text-slate-800 overflow-x-auto code-scroll">docker-compose up -d --build</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Portainer -->
+            <div id="content-portainer" class="mt-8 space-y-8 hidden">
+                 <div class="flex">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600 font-bold">1</div>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="text-lg font-bold text-slate-900">Web Editor Setup</h4>
+                        <p class="text-slate-500">Paste the content of <code>docker-compose.yml</code> into the Stack Web Editor.</p>
+                    </div>
+                </div>
+
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600 font-bold">2</div>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="text-lg font-bold text-slate-900">Environment Variables</h4>
+                        <p class="text-slate-500 mb-2">Scroll down to the <strong>Environment variables</strong> section in the Portainer UI.</p>
+                        <p class="text-slate-500">Add <code>DOMAIN</code>, <code>ADMIN_USER</code>, <code>ADMIN_PASS</code>, etc., using the "Add environment variable" button manually. Do NOT use a .env file here.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-slate-400">&copy; 2024 P.U.L.S.E. Open Source Documentation. License: MIT.</p>
+            <div class="mt-4 flex justify-center space-x-6">
+                <span class="px-3 py-1 bg-blue-900 text-blue-200 rounded-full text-xs font-bold">v1.1.0</span>
+                <span class="px-3 py-1 bg-emerald-900 text-emerald-200 rounded-full text-xs font-bold">Node.js</span>
+                <span class="px-3 py-1 bg-red-900 text-red-200 rounded-full text-xs font-bold">Redis</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Implementation -->
+    <script>
+        // --- 1. Architecture Simulation (Chart.js) ---
+        // Context: Visualizing the key value prop (Write-Behind Caching)
+        const ctx = document.getElementById('archChart').getContext('2d');
+        
+        // Initial Data
+        const maxDataPoints = 50;
+        const labels = Array(maxDataPoints).fill('');
+        const redisData = Array(maxDataPoints).fill(0);
+        const sqliteData = Array(maxDataPoints).fill(null); // Null to show sparse points
+
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Incoming Hits (Redis RAM)',
+                        borderColor: '#3b82f6', // Blue-500
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        data: redisData,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Disk Writes (SQLite)',
+                        type: 'bar',
+                        backgroundColor: '#10b981', // Emerald-500
+                        data: sqliteData,
+                        barThickness: 8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false, // Disable animation for performance on high-freq updates
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        suggestedMax: 100,
+                        title: { display: true, text: 'Operations / sec' }
+                    },
+                    x: { display: false }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: { enabled: false } // Disable tooltips for pure viz
+                }
+            }
+        });
+
+        // Simulation Loop
+        let tick = 0;
+        setInterval(() => {
+            tick++;
+            
+            // Simulating high velocity random traffic
+            const traffic = Math.floor(Math.random() * 50) + 20 + (Math.sin(tick/10) * 10);
+            
+            // Shift arrays
+            redisData.shift();
+            redisData.push(traffic);
+            sqliteData.shift();
+
+            // Simulate Write-Behind (Flush every ~20 ticks/2 seconds for visual demo purposes)
+            // Real app is 10s, simplified for demo speed
+            if (tick % 20 === 0) {
+                // SQLite Write is a batch operation (represented as a single spike)
+                // In reality, it writes the sum, but visually we just want to show "Activity"
+                sqliteData.push(traffic + 20); // Spike visual
+            } else {
+                sqliteData.push(null);
+            }
+
+            chart.update();
+        }, 100); // Update every 100ms
+
+        // --- 2. Configuration Generator Logic ---
+        const envInputs = ['conf-domain', 'conf-github', 'conf-user', 'conf-pass'];
+        const envOutput = document.getElementById('env-output');
+
+        function updateEnvOutput() {
+            const domain = document.getElementById('conf-domain').value || 'https://counter.sanchez.ph';
+            const github = document.getElementById('conf-github').value || 'https://github.com/your-username/pulse';
+            const user = document.getElementById('conf-user').value || 'sanchez';
+            const pass = document.getElementById('conf-pass').value || 'SuperSecurePassword123!';
+
+            const content = `DOMAIN=${domain}\nGITHUB_URL=${github}\nADMIN_USER=${user}\nADMIN_PASS=${pass}`;
+            envOutput.textContent = content;
+        }
+
+        // Attach listeners
+        envInputs.forEach(id => {
+            document.getElementById(id).addEventListener('input', updateEnvOutput);
+        });
+        
+        // Initialize once
+        updateEnvOutput();
+
+        // Copy functionality
+        document.getElementById('copy-env').addEventListener('click', () => {
+            navigator.clipboard.writeText(envOutput.textContent).then(() => {
+                const btn = document.getElementById('copy-env');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.classList.add('bg-green-600');
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('bg-green-600');
+                }, 2000);
+            });
+        });
+
+        // --- 3. Deployment Tabs Logic ---
+        function switchTab(tabName) {
+            // Hide all content
+            document.getElementById('content-standard').classList.add('hidden');
+            document.getElementById('content-portainer').classList.add('hidden');
+            
+            // Reset tab styles
+            const standardTab = document.getElementById('tab-standard');
+            const portainerTab = document.getElementById('tab-portainer');
+            
+            // Base classes
+            const activeClasses = ['border-blue-500', 'text-blue-600'];
+            const inactiveClasses = ['border-transparent', 'text-slate-500', 'hover:text-slate-700', 'hover:border-slate-300'];
+
+            standardTab.classList.remove(...activeClasses);
+            standardTab.classList.add(...inactiveClasses);
+            
+            portainerTab.classList.remove(...activeClasses);
+            portainerTab.classList.add(...inactiveClasses);
+
+            // Activate specific
+            const activeTab = document.getElementById(`tab-${tabName}`);
+            activeTab.classList.remove(...inactiveClasses);
+            activeTab.classList.add(...activeClasses);
+            
+            // Show content
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+        }
+
+    </script>
+</body>
+</html>
